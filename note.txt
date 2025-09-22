@@ -1,0 +1,190 @@
+- tối ưu SEO với tree-shaking
+    + dùng cái j import cái đó
+- Meta-data
+    + Đặt tên title-description cho web page
+    + sử dụng file layout và page
+    + sử dụng sever BitsPerComponent
+    + export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const slug = params.slug;
+
+  const res = await sendRequest<IBackendRes<ITrackTop>>({
+    url: `http://localhost:8000/api/v1/tracks/${params.slug}`,
+    method: "GET",
+    nextOption: { cache: "no-store" }
+  });
+
+  return {
+    title: res.data?.title,
+  };
+}
+
+
+
+
+type Props = {
+  params: { slug: string }
+  searchParams: { [key: string]: string | string[] | undefined }
+}
+
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  // read route params
+  const id = params.slug; // ⚠️ nếu URL dạng [...]/[id] thì dùng params.id
+
+  // fetch data
+  const product = await fetch(`https://.../${id}`).then((res) => res.json());
+
+  return {
+    title: product?.name || "Default title",
+    description: product?.description || "Default description",
+  };
+}
+
+export async function generateMetadata(
+  { params, searchParams }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const res = await sendRequest<IBackendRes<ITrackTop>>({
+    url: `http://localhost:8000/api/v1/tracks/${params.slug}`,
+    method: "GET",
+    nextOption: { cache: "no-store" }
+  });
+
+  return {
+    title: res.data?.title,
+    description: res.data?.description
+  };
+}
+
+
++ meta OG
+ -2. Về cách test
+
+F12 check header của page
+
+Test thực tế, cần deploy với đường link url (không phải là localhost)
+
+Có thể test (không deploy) với localtunnel
+Tài liệu: https://theboroer.github.io/localtunnel-www/
+
+Bước 1: Cài đặt
+
+npm install -g localtunnel
+
+
+Bước 2: Run project
+
+Build:
+
+npm run build
+
+
+Chạy local:
+
+npm start
+
+
+Bước 3: Expose với localtunnel
+
+lt --port 3000
+
+
+👉 Sau khi chạy lệnh bước 3, bạn sẽ nhận được 1 URL public (ví dụ: https://abc123.loca.lt) → dùng URL này để test share link, SEO, Open Graph preview.
+
+socialsharepreview.com
+
++ theem logo cho wwebsite 32x32
++ favicon ,thêm  apple-icon, icon
++ url với slug - slugify  - mpm i --save-exact slugify@, trott.github.io/slug/ , viết bêb trong components , slugify("..", {lower : true}, {locale: vi}) , chèn tên xong chèn id rồi thêm tiền tố html
++ 
+
+
+className="track" key={track._id}>
+  <img 
+    src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/images/${track.imgUrl}`} 
+  />
+  <Link 
+    href={`/track/${convertSlugUrl(track.title)}-${track._id}.html?audio=${track.audioUrl}`}
+  >
+    <h4>{track.title}</h4>
+  </Link>
+  <h5>{track.description}</h5>
+
+
+
+
+  <Link
+  style={{
+    textDecoration: "none",
+    color: "unset"
+  }}
+  href={`/track/${convertSlugUrl(data.title)}-${data._id}.html?audio=${data.trackUrl}`}
+>
+  <Typography component="div" variant="h5">
+    {data.title}
+  </Typography>
+</Link>
+
+<Typography 
+  variant="subtitle1" 
+  color="text.secondary" 
+  component="div"
+>
+  {data.description}
+</Typography>
+
+
++ dùng JS split để lấy id
+
+
+export async function generateMetadata(
+  { params, searchParams }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const temp = params?.slug?.split('.html') ?? [];
+  const id = temp[0]?.split('-');
+
+  const res = await sendRequest<IBackendRes<ITrackTop>>({
+    url: `http://localhost:8000/api/v1/tracks/${id}`,
+    method: "GET"
+  });
+
+  return {
+    // có thể return title, description, openGraph,... dựa trên res
+  };
+}
+
+
++ thêm file robot.txt , sitemap và manifest.json , tạo file robots.ts trong app
++ thêm sitemap.ts trong app
++ thêm manifest.json
+
++ JSON - LD, import Script form next/script
++ lazy loading
+<h2>{title}</h2>
+<Slider {...settings}>
+  {data.map(track => {
+    return (
+      <div className="track" key={track._id}>
+        {/* 
+        <img
+          src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/images/${track.imgUrl}`}
+        />
+        */}
+        <Link href={`/track/${convertSlugUrl(track.title)}-${track._id}.html?audio=${track.audioUrl}`}>
+          <h4>{track.title}</h4>
+        </Link>
+        <h5>{track.description}</h5>
+      </div>
+    );
+  })}
+</Slider>
+
++ next js Image - import image from 'next/image, reponsive cuar next JS  về hình ảnh, size 100vw , width = 100%, height : auto
+remote image , cấu hình next.config.js để lấy ảmh từ backend, thêm thuộc tính fill , height 360px, width : 100%,style:objectFit: contain
+
++ image loader  next js - clodynari : trả phí
++ dùng  thưt viện slide chỉnh reponsive
++ tối ưu image với next JS
